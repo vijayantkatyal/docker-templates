@@ -1,0 +1,48 @@
+version: "3"
+
+networks:
+  ecommerce_backend:
+
+services:
+  ecommerce_mysql_server:
+    container_name: ecommerce_mysql_server
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 3308:3306
+    volumes:
+      - ./mysql_database:/var/lib/mysql
+    networks:
+      - ecommerce_backend
+
+  ecommerce_phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ecommerce_phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - /sessions
+    depends_on:
+      - ecommerce_mysql_server
+    networks:
+      - ecommerce_backend
+
+  app:
+    container_name: ecommerce_app
+    image: php:alpine
+    build: ./webserver
+    volumes:
+      - "./:/app"
+    working_dir: /app
+    command: "php artisan serve --host=0.0.0.0 --port=8000"
+    depends_on:
+      - ecommerce_mysql_server
+      - ecommerce_phpmyadmin
+    ports:
+      - 8000:8000
+    networks:
+      - ecommerce_backend

@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+    app:
+        container_name: tensorflow_demo
+        #image: tensorflow/tensorflow
+        build: ./
+        volumes:
+        - "./:/tmp"
+        working_dir: /tmp
+        command: "python3 hello.py"
+        # command: /bin/sh -c "while sleep 1000; do :; done"
